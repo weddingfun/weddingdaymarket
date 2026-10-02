@@ -3,6 +3,10 @@
 <title>愛情加油中｜婚禮公路大冒險－好婚市集</title>
 <meta property="og:title" content="愛情加油中｜婚禮公路大冒險">
 <meta property="og:description" content="籌備婚禮好耗油？閃過長輩意見、預算爆表，看你能撐多久！">
+<meta property="og:image" content="https://weddingfun.github.io/weddingdaymarket/og.jpg">
+<meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+<meta property="og:url" content="https://weddingfun.github.io/weddingdaymarket/"><meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@700;900&family=Yellowtail&display=swap" rel="stylesheet">
 <style>
 :root{--bg:#fbecca;--cream:#fef4e8;--wine:#7d1811;--rust:#c34f32;--pink:#f4c4b6;--teal:#4f9a9a;--gold:#f2a01e;--green:#8a9473}
@@ -81,7 +85,8 @@ p{margin:.3em 0;font-weight:700;font-size:14.5px;line-height:1.55}
 </div>
 <script>
 /* ================= 活動設定（只需改這區） ================= */
-const REG_URL='https://你的報名連結';           // ← 報名連結
+const REG_URL='https://lihi.weddingday.com.tw/HS2611/game';   // ← 報名連結
+const SHARE_URL='';  // ← 分享出去的網址；留空＝自動用遊戲本身的網址。想追蹤分享成效，可填一個專用的 lihi 短網址
 const EVENT={name:'好婚市集 Wedding Day Market',date:'2026/11/14（六）– 11/15（日）',time:'10:00 – 18:00',place:'華山文創園區 東二館'};
 /* 籌備壓力 → 好婚市集的解方（請依實際活動內容確認文字） */
 const STRESS={
@@ -408,10 +413,12 @@ function spawn(){const sx=W+speed*1.0+80;   // 在畫面外先生成，右側會
  const type=elapsed>8&&Math.random()<Math.min(.45,.25+elapsed/200)?deal('t',TALL):deal('l',LOW);addObs(sx,type);
  if(OB[type].tall&&!tallHinted){tallHinted=true;setTimeout(()=>toast('⇈ 高的要「連點兩下」二段跳！',C.teal),500)}
  let end=sx;if(elapsed>22&&Math.random()<Math.min(.45,(elapsed-22)/60)){end=sx+speed*.78+230;addObs(end,deal('l',LOW))}  // 連續障礙
- const minGap=speed*.92+300;nextSpawn=cam+(end-sx)+minGap+Math.random()*minGap*.7;
- const nx=sx+(nextSpawn-cam),gap=nx-end,hk=Math.max(.3,1-elapsed/100);   // nx＝下一個障礙出現的位置；道具放在兩個障礙的中間
- if(Math.random()<.35*hk)cols.push({x:end+gap*.45,y:ROADY-60,k:'heart'});
- if(Math.random()<.5){const hi=Math.random()<.35;cols.push({x:end+gap*.55,y:ROADY-(hi?430:290),k:pick(ITYPES)})}}
+ const v=speed*1.1,hk=Math.max(.3,1-elapsed/100),minGap=speed*.92+300;let gap=minGap+Math.random()*minGap*.7;
+ // 道具：保證「吃到之後落地，還來得及跳下一個障礙」。rise＝起跳到吃到、fall＝吃到到落地（秒）；空間不夠就把下一個障礙往後挪
+ let item=null;if(Math.random()<.5){const [hy,rise,fall]=Math.random()<.35?[430,.9,.65]:[290,.46,.46],pre=v*rise+220,need=pre+v*(fall+.4)+220;
+  if(gap<need)gap=need;item={x:end+pre+(gap-need)*.5,y:ROADY-hy,k:pick(ITYPES)};cols.push(item)}
+ nextSpawn=cam+(end-sx)+gap;
+ if(Math.random()<.35*hk){const hx=end+gap*.4;if(gap-gap*.4>=v*.4+220&&(!item||Math.abs(item.x-hx)>160))cols.push({x:hx,y:ROADY-60,k:'heart'})}}
 /* ---------- 流程 ---------- */
 function startGame(){aInit();state='play';jumps=0;hitStop=0;toasts=[];tallHinted=false;$('gotRow').textContent='';speed=470*SF;cam=0;carY=0;vy=0;fuel=100;score=0;elapsed=0;inv=0;obs=[];cols=[];pops=[];puffs=[];hits={};dodged=0;got={};gotN=0;hearts=0;nextSpawn=900;jumpBuf=-9;
  $('startOv').classList.remove('show');$('endOv').classList.remove('show');$('hint').classList.add('show');setTimeout(()=>$('hint').classList.remove('show'),2600)}
@@ -468,7 +475,7 @@ $('go').onclick=e=>{e.stopPropagation();startGame()};
 $('again').onclick=e=>{e.stopPropagation();startGame()};
 $('reg').href=REG_URL;
 $('ev').innerHTML=`${EVENT.name}<br>${EVENT.date}　${EVENT.time}<br>📍 ${EVENT.place}`;
-$('share').onclick=async e=>{e.stopPropagation();const l=window._last||{sc:0,g:GRADES[3]},url=location.href.split('#')[0],
+$('share').onclick=async e=>{e.stopPropagation();const l=window._last||{sc:0,g:GRADES[3]},url=SHARE_URL||location.href.split('#')[0],
  text=`我在「婚禮公路大冒險」拿到 ${l.sc} 分，籌備力 ${l.g[1]} 級（${l.g[2]}）！換你挑戰看看 👉`;
  if(navigator.share){try{await navigator.share({title:'愛情加油中｜婚禮公路大冒險',text,url});return}catch(err){if(err.name==='AbortError')return}}
  location.href='https://social-plugins.line.me/lineit/share?url='+encodeURIComponent(url)+'&text='+encodeURIComponent(text)};
