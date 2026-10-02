@@ -97,13 +97,13 @@ const EVENT={name:'好婚市集 Wedding Day Market',date:'2026/11/14（六）–
 /* 籌備壓力 → 好婚市集的解方（請依實際活動內容確認文字） */
 const STRESS={
  budget:{zh:'預算爆表',emo:'💸',say:['預算又爆了！','這個也要加錢？！','荷包在哭泣'],solve:'展期限定優惠，一次比價不踩雷'},
- elder: {zh:'長輩意見',emo:'👵',say:['阿姨說要辦桌','長輩：桌數再加十桌','媽媽說不吉利'],solve:'帶長輩一起逛，現場婚顧幫你溝通'},
+ elder: {zh:'長輩意見',emo:'👵',say:['阿姨說要辦桌','長輩：桌數再加十桌','媽媽說不吉利'],solve:'帶長輩一起逛，現場看實品最好溝通'},
  full:  {zh:'場地客滿',emo:'🚫',say:['好日子被訂走了','場地客滿！','檔期全滿…'],solve:'合作場地檔期，現場直接查、直接訂'},
  list:  {zh:'清單爆炸',emo:'📋',say:['待辦又變長了','還有 87 件事沒做','清單沒有盡頭'],solve:'婚紗、喜餅、小物、婚戒一站買齊'},
- choice:{zh:'選擇困難',emo:'❓',say:['A 跟 B 都好看…','選擇障礙發作','到底要選哪個？'],solve:'20 年經驗婚顧，現場幫你做決定'},
- seat:  {zh:'排桌地獄',emo:'🪑',say:['前任要坐哪桌？','這兩桌不能放一起','舅舅跟姑姑不合'],solve:'婚顧現場免費諮詢，桌次賓客一起規劃'},
+ choice:{zh:'選擇困難',emo:'❓',say:['A 跟 B 都好看…','選擇障礙發作','到底要選哪個？'],solve:'各家方案攤開一次比，現場就能做決定'},
+ seat:  {zh:'排桌地獄',emo:'🪑',say:['前任要坐哪桌？','這兩桌不能放一起','舅舅跟姑姑不合'],solve:'喜宴場地齊聚，桌數怎麼排現場一次問清楚'},
  diet:  {zh:'婚前瘦身',emo:'⚖️',say:['婚紗拉鍊拉不上','還要瘦 5 公斤','宵夜忍不住…'],solve:'醫美、婚前保養現場一次諮詢'},
- rush:  {zh:'趕到焦慮',emo:'⏰',say:['來不及了來不及了！','焦慮到睡不著','每天都在倒數…'],solve:'婚顧幫你排好籌備時程，不再手忙腳亂'},
+ rush:  {zh:'趕到焦慮',emo:'⏰',say:['來不及了來不及了！','焦慮到睡不著','每天都在倒數…'],solve:'一站逛完，該訂的現場一次訂好'},
  rain:  {zh:'雨天備案',emo:'☔',say:['戶外婚禮遇到雨','氣象說會下雨','雨備在哪裡？'],solve:'有雨備的場地，現場一次比較'},
  invite:{zh:'喜帖地獄',emo:'✉️',say:['喜帖還沒寄','地址一個一個抄','少印了 20 張'],solve:'喜帖、小物現場直接下單'},
  gown:  {zh:'婚紗挑不完',emo:'👗',say:['試了 30 套還沒選','每件都想要','到底哪件適合我'],solve:'多家婚紗一次看、一次比較'},
@@ -484,7 +484,7 @@ function showEnd(){if(state==='end')return;state='end';sWin();
  $('hitTitle').textContent=hl.length?'這一路你被這些卡住：':'這一路你閃過了這些壓力：';
  $('hitList').innerHTML=(hl.length?hl:OTYPES.slice(0,3).map(k=>[k,0])).map(([k,n])=>`<span class="chip">${STRESS[k].emo} ${STRESS[k].zh}${n?' ×'+n:''}</span>`).join('');
  const order=[...hl.map(h=>h[0]),...OTYPES.filter(k=>!hits[k])].slice(0,3);
- $('solve').innerHTML=order.map(k=>`<div><em>${STRESS[k].emo} ${STRESS[k].zh}</em><span>${STRESS[k].solve}${STRESS[k].solve.includes('婚顧')?` <a href="${CONSULT_URL}" target="_blank" rel="noopener">🚖 叫代駕 →</a>`:''}</span></div>`).join('');
+ $('solve').innerHTML=order.map(k=>`<div><em>${STRESS[k].emo} ${STRESS[k].zh}</em><span>${STRESS[k].solve}</span></div>`).join('');
  let best=0;try{best=+localStorage.getItem('lfr_best')||0;if(sc>best){localStorage.setItem('lfr_best',sc);best=sc}}catch(e){}
  $('endOv').classList.add('show');$('endOv').scrollTop=0;window._last={sc,g}}
 $('go').onclick=e=>{e.stopPropagation();startGame()};
