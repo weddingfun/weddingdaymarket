@@ -50,7 +50,7 @@ p{margin:.3em 0;font-weight:700;font-size:14.5px;line-height:1.55}
 .event{font-size:13px;font-weight:900;background:var(--wine);color:var(--cream);border-radius:12px;padding:8px;margin-top:10px;line-height:1.6}
 .best{font-size:12.5px;opacity:.7;font-weight:700}
 #gotRow{font-size:20px;letter-spacing:2px;min-height:24px;filter:drop-shadow(1px 1px 0 #fff)}
-#hint{position:absolute;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 18%);transform:translateX(-50%);background:var(--wine);color:var(--cream);font-weight:900;padding:8px 16px;border-radius:99px;font-size:15px;pointer-events:none;opacity:0;transition:opacity .4s;white-space:nowrap}
+#hint{position:absolute;left:50%;top:32%;transform:translateX(-50%);background:var(--wine);color:var(--cream);font-weight:900;padding:8px 16px;border-radius:99px;font-size:15px;pointer-events:none;opacity:0;transition:opacity .4s;white-space:nowrap}
 #hint.show{opacity:1}
 </style></head><body>
 <div id="stage"><canvas id="c"></canvas>
@@ -109,12 +109,13 @@ const GRADES=[[6000,'S','籌備之神'],[4000,'A','超強行動派'],[2200,'B','
 /* =========================================================== */
 
 const C={bg:'#fbecca',cream:'#fef4e8',wine:'#7d1811',rust:'#c34f32',pink:'#f4c4b6',teal:'#4f9a9a',gold:'#f2a01e',green:'#8a9473',road:'#5b2a22',sand:'#efad65',mesa:'#e2805a',ice:'#cfe8e3'};
-const H=1000,GROUND=760,ROADY=GROUND+92;let W=1000,CARX=280,OY=0,S=.5,SF=1;
+const H=1000,GROUND=760,ROADY=GROUND+92;let W=1000,CARX=280,OY=0,S=.5,SF=1,HUDB=120;
 const cv=document.getElementById('c'),x=cv.getContext('2d');const $=s=>document.getElementById(s);
 function fit(){const r=cv.getBoundingClientRect(),d=Math.min(2.5,devicePixelRatio||1),asp=r.width/r.height;
  W=Math.max(720,Math.min(2000,1000*asp));OY=W/asp-1000;const k=r.width/W*d;   // 等比例縮放；直式手機上方多出的空間畫成天空
  S=W<900?.44:.5;SF=Math.max(.9,Math.min(1,W/1000));CARX=Math.min(380,Math.max(140,W*.21));
- cv.width=r.width*d;cv.height=r.height*d;x.setTransform(k,0,0,k,0,OY*k)}
+ cv.width=r.width*d;cv.height=r.height*d;x.setTransform(k,0,0,k,0,OY*k);
+ HUDB=($('hudL').getBoundingClientRect().bottom+8)*W/r.width}   // HUD 底部（換算成遊戲座標），天空標題要排在它下面
 addEventListener('resize',fit);
 const dotC=document.createElement('canvas');dotC.width=dotC.height=12;{const d=dotC.getContext('2d');d.fillStyle='rgba(125,24,17,.22)';d.beginPath();d.arc(3,3,1.6,0,7);d.fill();d.beginPath();d.arc(9,9,1.6,0,7);d.fill()}
 const DOTS=x.createPattern(dotC,'repeat');
@@ -285,9 +286,10 @@ function billboards(){const sc=cam*PB,i0=Math.floor((sc-300)/SPB),i1=Math.ceil((
  for(let i=i0;i<=i1;i++){const id=BB[((i%BB.length)+BB.length)%BB.length],c=CATS[id],cx=i*SPB-sc+150,top=300+((i*37)%3)*22;
   x.fillStyle=C.gold;x.lineWidth=5;x.strokeStyle=C.wine;[-28,28].forEach(k=>{x.fillRect(cx+k-7,top+120,14,690-top-120);x.strokeRect(cx+k-7,top+120,14,690-top-120)});
   x.save();x.translate(cx,top);x.scale(.58,.58);FRAME[c.frame](0,0,{...c,id},i);x.restore()}}
-function world(){x.fillStyle=C.bg;x.fillRect(0,-OY-2,W,H+OY+4);
- if(OY>160){const y0=-OY+Math.max(90,OY*.42);txt('Wedding Day Market',W/2,y0,'64px Yellowtail,cursive',C.rust);txt('好婚市集・愛情加油中',W/2,y0+78,'900 54px "Noto Sans TC"',C.wine);
-  txt(EVENT.date.replace(/（.）/g,''),W/2,y0+140,'900 30px "Noto Sans TC"',C.rust)}
+function world(){{const r=cv.getBoundingClientRect(),hb=$('hudL').getBoundingClientRect().bottom;if(r.width)HUDB=(hb+10)*W/r.width}x.fillStyle=C.bg;x.fillRect(0,-OY-2,W,H+OY+4);
+ {const top=-OY+HUDB,room=190-top;   // 天空標題：放在 HUD 下方、山的上方，空間不夠就自動縮減
+  if(room>260){const y0=top+Math.min(70,(room-230)*.4)+40;txt('Wedding Day Market',W/2,y0,'60px Yellowtail,cursive',C.rust);txt('好婚市集・愛情加油中',W/2,y0+76,'900 52px "Noto Sans TC"',C.wine);txt(EVENT.date.replace(/（.）/g,''),W/2,y0+132,'900 30px "Noto Sans TC"',C.rust)}
+  else if(room>130){const y0=top+40;txt('好婚市集・愛情加油中',W/2,y0,'900 46px "Noto Sans TC"',C.wine);txt(EVENT.date.replace(/（.）/g,''),W/2,y0+54,'900 28px "Noto Sans TC"',C.rust)}}
  x.beginPath();x.arc(W*.72-(cam*.02%600),210,95,0,7);x.fillStyle='#f8d58f';x.fill();
  mesas(cam*.1);hills(cam*.18,540,36,C.sand,1);
  const ck=46,cy0=560,co=-(cam*.4%(ck*2));x.fillStyle=C.cream;x.fillRect(0,cy0,W,GROUND-cy0);
@@ -386,21 +388,29 @@ function drawObs(o){const d=OB[o.type];x.save();x.translate(o.x,ROADY);
  x.fillStyle='rgba(30,8,6,.35)';x.beginPath();x.ellipse(0,4,d.w*OSC*.62,12,0,0,7);x.fill();   // 地面陰影
  if(o.hit)x.globalAlpha=.55;x.scale(OSC,OSC);x.shadowColor='rgba(254,244,232,.95)';x.shadowBlur=22;d.draw();x.shadowBlur=0;d.draw();x.restore();   // 米白光暈，從深色路面跳出來
  label(o.x,ROADY+50,o,o.hit)}   // 標籤放在障礙物下方的路面上
-function label(cx,cy,o,dim){const L=Math.max(W<900?1.3:1,W/1100),st=STRESS[o.type],s=st.emo+' '+st.zh+(OB[o.type].tall?' ⇈':''),f='900 '+Math.round(28*L)+'px "Noto Sans TC"';x.font=f;const tw=x.measureText(s).width+30*L;
- cx=Math.min(cx,W-tw/2-16);const off=o.x-OB[o.type].w*OSC/2>W-10;if(off&&Math.floor(t*8)%2)x.globalAlpha=.75;   // 障礙還在畫面外時，標籤先貼在右緣閃爍預告
-x.save();x.translate(cx,cy);x.scale(L,L);x.translate(-cx,-cy);
- x.beginPath();x.moveTo(cx-12,cy-20);x.lineTo(cx,cy-36);x.lineTo(cx+12,cy-20);x.fillStyle=dim?'#bbb':(OB[o.type].tall?C.rust:C.wine);x.fill();
- rr(cx-tw/2/L,cy-22,tw/L,44,22);x.fillStyle=dim?'#bbb':(OB[o.type].tall?C.rust:C.wine);x.fill();ln(3,C.cream);x.stroke();x.font='900 28px "Noto Sans TC"';txt(s,cx,cy+1,x.font,C.cream);if(off)txt('◀',cx-tw/2/L-22,cy+1,'900 26px "Noto Sans TC"',C.rust);x.restore();x.globalAlpha=1;return tw}
+function label(cx,cy,o,dim){
+ const L=Math.max(W<900?1.3:1,W/1100),st=STRESS[o.type],fpx=28*L,text=st.zh+(OB[o.type].tall?' ⇈':'');
+ x.font='900 '+Math.round(fpx)+'px "Noto Sans TC",sans-serif';const tw=x.measureText(st.emo).width+fpx*.3+x.measureText(text).width+fpx*1.4;
+ cx=Math.min(cx,W-tw/2-16);const off=o.x-OB[o.type].w*OSC/2>W-10,col=dim?'#bbb':(OB[o.type].tall?C.rust:C.wine);if(off&&Math.floor(t*8)%2)x.globalAlpha=.75;
+ x.beginPath();x.moveTo(cx-12*L,cy-fpx*.75);x.lineTo(cx,cy-fpx*1.3);x.lineTo(cx+12*L,cy-fpx*.75);x.fillStyle=col;x.fill();
+ pill(cx,cy,st.emo,text,fpx,col);
+ if(off){x.font='900 '+Math.round(fpx)+'px sans-serif';x.textAlign='left';x.fillStyle=C.rust;const aw=x.measureText('◀').width;x.fillText('◀',cx-tw/2-10-aw,cy)}
+ x.globalAlpha=1;return tw}
 function warnings(){}
 function drawCol(c){x.save();x.translate(c.x,c.y+Math.sin(t*5+c.x*.01)*5);
  if(c.k==='heart'){x.beginPath();x.arc(0,0,24,0,7);x.fillStyle='rgba(255,255,255,.55)';x.fill();heartP(0,2,1.05);fs(C.rust,4);x.beginPath();x.arc(-7,-6,3.5,0,7);x.fillStyle='#fff';x.fill()}
  else{x.beginPath();x.arc(0,0,40,0,7);fs(C.cream,5);x.beginPath();x.arc(0,0,33,0,7);ln(2.5,C.gold);x.stroke();x.scale(.36,.36);ICON[c.k]()}
  x.restore()}
 function pop(px,py,text,col=C.wine,big){pops.push({x:px,y:py,s:text,c:col,a:1,big})}
-function toast(s,col){toasts.unshift({s,c:col,a:1.3});toasts=toasts.slice(0,2)}
-function drawToasts(){const L=Math.max(1,W/1100);toasts.forEach((o,k)=>{const f='900 46px "Noto Sans TC"';x.font=f;const tw=x.measureText(o.s).width+50,y=(OY>160?110:120*L)+k*76*L;
- x.globalAlpha=Math.min(1,o.a*2.5);const sc=L*(1+Math.max(0,o.a-1.15)*2);x.save();x.translate(W/2,y);x.scale(sc,sc);
- rr(-tw/2,-34,tw,68,34);x.fillStyle=o.c;x.fill();ln(5,C.cream);x.stroke();txt(o.s,0,2,f,C.cream);x.restore();x.globalAlpha=1})}
+/* 膠囊文字：表情符號與文字分開、各自量寬、左對齊手動排版，不使用縮放與置中對齊（避開 iPhone Safari/LINE 的文字偏移問題） */
+function pill(cx,cy,emo,text,fpx,bg,maxW){const F='900 '+Math.round(fpx)+'px "Noto Sans TC",sans-serif';x.font=F;x.textAlign='left';x.textBaseline='middle';
+ const ew=emo?x.measureText(emo).width:0,gap=emo?fpx*.3:0,tw=x.measureText(text).width,inner=ew+gap+tw,pad=fpx*.7,w=inner+pad*2,h=fpx*1.6;
+ if(maxW&&w>maxW)return pill(cx,cy,emo,text,fpx*maxW/w,bg);
+ rr(cx-w/2,cy-h/2,w,h,h/2);x.fillStyle=bg;x.fill();ln(Math.max(3,fpx*.1),C.cream);x.stroke();
+ const sx=cx-inner/2;x.fillStyle=C.cream;if(emo)x.fillText(emo,sx,cy+fpx*.04);x.fillText(text,sx+ew+gap,cy+fpx*.04);return w}
+function toast(emo,s,col){toasts.unshift({e:emo,s,c:col,a:1.3});toasts=toasts.slice(0,2)}
+function drawToasts(){const L=Math.max(1,W/1100);toasts.forEach((o,k)=>{const y=(OY>160?110:120*L)+k*80*L,pop=1+Math.max(0,o.a-1.15)*2;
+ x.globalAlpha=Math.min(1,o.a*2.5);pill(W/2,y,o.e,o.s,40*L*pop,o.c,W-30);x.globalAlpha=1})}
 
 /* ---------- 生成 ---------- */
 const OTYPES=Object.keys(OB),ITYPES=Object.keys(ITEMS);
@@ -411,7 +421,7 @@ function addObs(sx,type){obs.push({x:sx,type,hit:false,passed:false});const h=OB
  if(Math.random()<.48*Math.max(.3,1-elapsed/100))[-110,0,110].forEach((dx,k)=>cols.push({x:sx+dx,y:ROADY-h*OSC-85-(k===1?40:0),k:'heart'}))} // 愛心弧線拉高，避開障礙與標籤
 function spawn(){const sx=W+speed*1.0+80;   // 在畫面外先生成，右側會先出現預警標籤
  const type=elapsed>8&&Math.random()<Math.min(.45,.25+elapsed/200)?deal('t',TALL):deal('l',LOW);addObs(sx,type);
- if(OB[type].tall&&!tallHinted){tallHinted=true;setTimeout(()=>toast('⇈ 高的要「連點兩下」二段跳！',C.teal),500)}
+ if(OB[type].tall&&!tallHinted){tallHinted=true;setTimeout(()=>toast('⇈','高的要「連點兩下」二段跳！',C.teal),500)}
  let end=sx;if(elapsed>22&&Math.random()<Math.min(.45,(elapsed-22)/60)){end=sx+speed*.78+230;addObs(end,deal('l',LOW))}  // 連續障礙
  const v=speed*1.1,hk=Math.max(.3,1-elapsed/100),minGap=speed*.92+300;let gap=minGap+Math.random()*minGap*.7;
  // 道具：保證「吃到之後落地，還來得及跳下一個障礙」。rise＝起跳到吃到、fall＝吃到到落地（秒）；空間不夠就把下一個障礙往後挪
@@ -440,13 +450,13 @@ function update(dt){toasts.forEach(o=>o.a-=dt*.85);toasts=toasts.filter(o=>o.a>0
   const hb=hitBox();
   obs.forEach(o=>{o.x-=adv;const d=OB[o.type],ol=o.x-d.w*HSC/2+26,or=o.x+d.w*HSC/2-26,ot=ROADY-d.h*HSC+20;
    if(state==='play'&&!o.hit&&inv<=0&&hb.r>ol&&hb.l<or&&hb.b>ot){o.hit=true;inv=1.1;shake=14;fuel=Math.max(0,fuel-20);hits[o.type]=(hits[o.type]||0)+1;sHit();
-    hitStop=.12;const st=STRESS[o.type];toast(st.emo+' '+pick(st.say)+'　油 -20%',C.rust)}
+    hitStop=.12;const st=STRESS[o.type];toast(st.emo,pick(st.say)+'　油 -20%',C.rust)}
    if(!o.passed&&or<hb.l){o.passed=true;if(!o.hit&&state==='play'){dodged++;score+=40}}});
   obs=obs.filter(o=>o.x>-200);
   cols.forEach(c=>{c.x-=adv;if(c.got||state!=='play')return;const r=c.k==='heart'?32:46;
    if(c.x+r>hb.l&&c.x-r<hb.r&&c.y+r>hb.t&&c.y-r<hb.b){c.got=true;
     if(c.k==='heart'){fuel=Math.min(100,fuel+10);hearts++;score+=10;sHeart();pop(c.x,c.y-30,'+油',C.rust)}
-    else{fuel=Math.min(100,fuel+4);gotN++;got[c.k]=1;score+=150;sItem();toast(IEMO[c.k]+' '+ITEMS[c.k]+'搞定！+150',C.teal);$('gotRow').textContent=Object.keys(got).map(k=>IEMO[k]).join('')}}});
+    else{fuel=Math.min(100,fuel+4);gotN++;got[c.k]=1;score+=150;sItem();toast(IEMO[c.k],ITEMS[c.k]+'搞定！+150',C.teal);$('gotRow').textContent=Object.keys(got).map(k=>IEMO[k]).join('')}}});
   cols=cols.filter(c=>c.x>-100&&!c.got);
   if(state==='play'&&Math.random()<dt*speed*.02)puffs.push({x:CARX-140,y:ROADY-30-carY,a:.8,s:.3+Math.random()*.2});}
  puffs.forEach(p=>{p.x-=dt*(60+speed*.7);p.y-=dt*30;p.a-=dt*1.1;p.s+=dt*.7});puffs=puffs.filter(p=>p.a>0);
