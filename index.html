@@ -47,6 +47,10 @@ p{margin:.3em 0;font-weight:700;font-size:14.5px;line-height:1.55}
 .solve{text-align:left;background:#fff;border:2px dashed var(--rust);border-radius:16px;padding:8px 12px;margin:8px 0}
 .solve div{display:flex;gap:8px;padding:5px 0;font-weight:700;font-size:14px;line-height:1.4;border-bottom:1px dotted #c34f3255}.solve div:last-child{border:0}
 .solve em{font-style:normal;font-weight:900;color:var(--rust);white-space:nowrap}
+.consult{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;background:#fff;border:2px solid var(--teal);border-radius:16px;padding:8px 10px 8px 12px;margin:6px 0 4px;font-weight:900;font-size:13.5px;text-align:left}
+.consult small{display:block;font-size:12px;font-weight:700;opacity:.75;margin-top:2px}
+.consult a{background:var(--teal);color:#fff;text-decoration:none;border-radius:99px;padding:7px 12px;white-space:nowrap;font-size:13.5px}
+.solve a{color:var(--teal);font-weight:900;white-space:nowrap;text-decoration:none;margin-left:4px}
 .event{font-size:13px;font-weight:900;background:var(--wine);color:var(--cream);border-radius:12px;padding:8px;margin-top:10px;line-height:1.6}
 .best{font-size:12.5px;opacity:.7;font-weight:700}
 #gotRow{font-size:20px;letter-spacing:2px;min-height:24px;filter:drop-shadow(1px 1px 0 #fff)}
@@ -79,6 +83,7 @@ p{margin:.3em 0;font-weight:700;font-size:14.5px;line-height:1.55}
  <h2>但在好婚市集，這些一次搞定 👇</h2>
  <div class="solve" id="solve"></div>
  <a class="btn" id="reg" target="_blank" rel="noopener">立即報名・來好婚市集加滿油</a>
+ <div class="consult"><span>🚖 籌備卡關、需要代駕？<small>讓 20 年專業婚顧幫你開完這段路</small></span><a id="consult" target="_blank" rel="noopener">呼叫婚禮代駕 →</a></div>
  <div class="row"><button class="btn alt" id="share">挑戰另一半 💌</button><button class="btn ghost" id="again">再玩一次</button></div>
  <div class="event" id="ev"></div>
 </div></div>
@@ -86,7 +91,8 @@ p{margin:.3em 0;font-weight:700;font-size:14.5px;line-height:1.55}
 <script>
 /* ================= 活動設定（只需改這區） ================= */
 const REG_URL='https://lihi.weddingday.com.tw/HS2611/game';   // ← 報名連結
-const SHARE_URL='';  // ← 分享出去的網址；留空＝自動用遊戲本身的網址。想追蹤分享成效，可填一個專用的 lihi 短網址
+const SHARE_URL='';
+const CONSULT_URL='https://www.weddingfunstudio.com/?utm_source=weddingdaymarket&utm_medium=game&utm_campaign=2026_1114';  // ← 想樂官網（帶追蹤參數，可在 GA 看到從遊戲來的人數）  // ← 分享出去的網址；留空＝自動用遊戲本身的網址。想追蹤分享成效，可填一個專用的 lihi 短網址
 const EVENT={name:'好婚市集 Wedding Day Market',date:'2026/11/14（六）– 11/15（日）',time:'10:00 – 18:00',place:'華山文創園區 東二館'};
 /* 籌備壓力 → 好婚市集的解方（請依實際活動內容確認文字） */
 const STRESS={
@@ -478,12 +484,12 @@ function showEnd(){if(state==='end')return;state='end';sWin();
  $('hitTitle').textContent=hl.length?'這一路你被這些卡住：':'這一路你閃過了這些壓力：';
  $('hitList').innerHTML=(hl.length?hl:OTYPES.slice(0,3).map(k=>[k,0])).map(([k,n])=>`<span class="chip">${STRESS[k].emo} ${STRESS[k].zh}${n?' ×'+n:''}</span>`).join('');
  const order=[...hl.map(h=>h[0]),...OTYPES.filter(k=>!hits[k])].slice(0,3);
- $('solve').innerHTML=order.map(k=>`<div><em>${STRESS[k].emo} ${STRESS[k].zh}</em><span>${STRESS[k].solve}</span></div>`).join('');
+ $('solve').innerHTML=order.map(k=>`<div><em>${STRESS[k].emo} ${STRESS[k].zh}</em><span>${STRESS[k].solve}${STRESS[k].solve.includes('婚顧')?` <a href="${CONSULT_URL}" target="_blank" rel="noopener">🚖 叫代駕 →</a>`:''}</span></div>`).join('');
  let best=0;try{best=+localStorage.getItem('lfr_best')||0;if(sc>best){localStorage.setItem('lfr_best',sc);best=sc}}catch(e){}
  $('endOv').classList.add('show');$('endOv').scrollTop=0;window._last={sc,g}}
 $('go').onclick=e=>{e.stopPropagation();startGame()};
 $('again').onclick=e=>{e.stopPropagation();startGame()};
-$('reg').href=REG_URL;
+$('reg').href=REG_URL;$('consult').href=CONSULT_URL;
 $('ev').innerHTML=`${EVENT.name}<br>${EVENT.date}　${EVENT.time}<br>📍 ${EVENT.place}`;
 $('share').onclick=async e=>{e.stopPropagation();const l=window._last||{sc:0,g:GRADES[3]},url=SHARE_URL||location.href.split('#')[0],
  text=`我在「婚禮公路大冒險」拿到 ${l.sc} 分，籌備力 ${l.g[1]} 級（${l.g[2]}）！換你挑戰看看 👉`;
